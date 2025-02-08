@@ -15,6 +15,11 @@ if [ -z "$OP_CONNECT_HOST" ]; then
   exit 1
 fi
 
+if [ -z "$ENV_FILE_LOCATION" ]; then
+  echo "Error: ENV_FILE_LOCATION is required" >&2
+  exit 1
+fi
+
 # Process each environment variable starting with OP_SECRET_
 for secret_var in $(printenv | grep '^OP_SECRET_' | cut -d= -f1); do
   op_path="$(printenv "$secret_var")"
@@ -27,13 +32,13 @@ for secret_var in $(printenv | grep '^OP_SECRET_' | cut -d= -f1); do
     exit 1
   fi
 
-  # Store the secret value (without logging)
-  export "$secret_var"="$secret_value"
+  sed -i "s|{{$secret_var}}|$secret_value|g" $ENV_FILE_LOCATION/.env
 
   # Clear the variable containing the secret
   unset secret_value
+  unset secret_var
 
-  echo "✓ Secret [ $secret_var ] stored successfully" >&2
+  echo "✓ Secret [ $secret_var ] replaced successfully" >&2
 done
 
 # If we're just fetching secrets, exit after clearing sensitive environment variables
