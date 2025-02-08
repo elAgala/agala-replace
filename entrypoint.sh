@@ -22,6 +22,12 @@ fi
 
 ENV_FILE_PATH=$ENV_FILE_LOCATION/.env
 
+if [ -f "$ENV_FILE_PATH" ]; then
+  echo "✅ .env file exists at $ENV_FILE_LOCATION"
+else
+  echo "❌ .env file is missing!"
+fi
+
 # Process each environment variable starting with OP_SECRET_
 for secret_var in $(printenv | grep '^OP_SECRET_' | cut -d= -f1); do
   op_path="$(printenv "$secret_var")"
