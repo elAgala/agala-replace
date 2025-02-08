@@ -13,6 +13,7 @@ run-local:
 	op inject --in-file .env --out-file .env.resolved -f && \
 	docker run --rm -it \
 		--env-file .env.resolved \
+		-v ./dist:/app/dist \
 		agala-replace:local && \
 	rm .env.resolved
 

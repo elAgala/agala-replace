@@ -20,6 +20,8 @@ if [ -z "$ENV_FILE_LOCATION" ]; then
   exit 1
 fi
 
+ENV_FILE_PATH=$ENV_FILE_LOCATION/.env
+
 # Process each environment variable starting with OP_SECRET_
 for secret_var in $(printenv | grep '^OP_SECRET_' | cut -d= -f1); do
   op_path="$(printenv "$secret_var")"
@@ -32,13 +34,15 @@ for secret_var in $(printenv | grep '^OP_SECRET_' | cut -d= -f1); do
     exit 1
   fi
 
-  sed -i "s|{{$secret_var}}|$secret_value|g" $ENV_FILE_LOCATION/.env
+  if grep -q "{{$secret_var}}" "$ENV_FILE_PATH"; then
+    sed -i "s~{{$secret_var}}~$secret_value~g" "$ENV_FILE_PATH"
+    echo "✓ Secret [ $secret_var ] replaced successfully" >&2
+  else
+    echo "Warning: Placeholder {{$secret_var}} not found in .env file" >&2
+  fi
 
-  # Clear the variable containing the secret
   unset secret_value
   unset secret_var
-
-  echo "✓ Secret [ $secret_var ] replaced successfully" >&2
 done
 
 # If we're just fetching secrets, exit after clearing sensitive environment variables
