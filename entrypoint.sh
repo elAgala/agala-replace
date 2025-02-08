@@ -52,6 +52,3 @@ if [ $# -eq 0 ]; then
   unset OP_CONNECT_HOST
   exit 0
 fi
-
-# Execute the passed command with cleaned environment
-exec "$@"
